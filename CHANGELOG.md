@@ -10,7 +10,10 @@ not yet been cut into a published version lives under **[Unreleased]**.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- `REMEDIATION_PLAN.md` — phased plan to remediate the 32 findings (17 major)
+  from the v0.1.0 static architecture review, with the decisions required, a
+  finding-to-phase map, sequencing/dependencies, and version milestones.
 
 ## [0.1.0] - 2026-06-03
 
