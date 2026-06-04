@@ -12,6 +12,46 @@ not yet been cut into a published version lives under **[Unreleased]**.
 
 _Nothing yet._
 
+## [0.3.0] - 2026-06-04
+
+Remediation milestone 2: attribution and audit trail (Phase 3) and extraction of
+the verification protocol (Phase 5). Closes review findings R1, R3, R4, R5, R9,
+and R15, and partially R29.
+
+### Added
+- `references/VERIFICATION.md` — the bounded drift-verification protocol, extracted
+  from `SKILL.md` (R15). `SKILL.md` step 5 is now a short summary plus a pointer,
+  shrinking the always-loaded body from ~401 to ~204 lines.
+
+### Changed
+- **The `Data` path is now audited** (R1): the verifier's drift-prone set adds
+  Rule 16 (replace adjectives with data) and Rule 19 (cite every data claim), for
+  14 rules total, and a new Data-source-trace check flags any `Data` value not
+  derivable from the original as fabricated data (drift).
+- **Resolvable claim locations** (R5): defined the `¶N` convention (paragraphs from
+  the section start in the original, excluding headings, tables, and the pre-publish
+  zone) and pinned `§Section` to the original heading, so rows stay resolvable after
+  header rewrites (Rule 28).
+- **Verifiable citations** (R9): `Original` cells must be verbatim substrings of the
+  source and `Reasoning` must cite a real rule (1-38); the verifier runs a citation
+  check that flags non-verbatim quotes and invalid or mismatched rule numbers.
+- **Edit log, not claim log** (R4): documented that the changes table records changed
+  spans, not every preserved factual claim, and that preserved text is not
+  independently re-verified (use `--show-changes` when data integrity must be
+  inspectable).
+
+### Fixed
+- **Audit trail persisted** (R3): the final verification pass's evidence checklist is
+  now written into the pre-publish zone (below the changes table) for default,
+  show-changes, and in-place modes, and into the dry-run output, so the
+  "drift caught / unresolved" counts trace to their evidence. This partially
+  addresses R29 by putting the checklist in the dry-run result; durable file
+  persistence for dry-run remains optional.
+
+### Deferred
+- R31 (move the audience preset table to a load-on-demand reference) — optional and
+  low impact; the small preset table stays in `SKILL.md` for now.
+
 ## [0.2.0] - 2026-06-04
 
 Remediation milestone 1: naming consistency, command relocation, coherence and

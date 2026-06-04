@@ -22,10 +22,16 @@ Insert a "Changes Made" section at the top of the document, wrapped in yellow pr
   `<table data-col-widths="25, 75, 75, 120, 110, 120">` (Google Docs does not auto-size columns; these proportional widths keep # and Type narrow, Original/Revised/Reasoning wide).
 - Changes table (with `--audience`):
   `<table data-col-widths="25, 30, 75, 75, 120, 110, 120">` (adds a Priority column after #).
+- Verification evidence checklist: below the changes table, include the final verification pass's checklist (the per-rule drift rows plus the citation and `Data`-source checks, per `references/VERIFICATION.md`). It lives inside the pre-publish zone so the author can audit the drift conclusion, then delete it with the rest of the zone before publishing.
 
 ## Changes table
 
 Use document order. Assign sequential IDs starting at 1.
+
+- **Location** uses `§[Original Section], ¶[N]`, where `¶N` counts paragraphs from the start of that section in the ORIGINAL document, excluding headings, tables, and the pre-publish zone. Pin `§Section` to the original heading text; if a header was rewritten (Rule 28), still cite the original header so the row stays resolvable.
+- **Original** must be a verbatim substring of the source document. **Reasoning** must cite a real rule number in the range 1-38.
+- A **Data** row must additionally cite the original span the value is derived from. A value that does not trace to the source is fabricated data (drift), not a `Data` change.
+- The changes table is an edit log, not a claim-provenance log: it records changed, added, or removed spans, not every preserved factual claim. Preserved text is not independently re-verified; when data integrity must be inspectable, use `--show-changes`.
 
 ### Without `--audience`
 
