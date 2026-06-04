@@ -1,25 +1,26 @@
 ---
-name: write-well
+name: narrative-style-editor
 description: >-
-  Review and rewrite a Google Doc by applying 38 rules for structure, clarity,
+  Review and rewrite a Google Doc against 38 rules for structure, clarity,
   data-driven precision, and editorial integrity, flagging gaps where the author
-  must supply missing data instead of guessing. Use when the user shares a Google
-  Doc URL and asks to review, improve, rewrite, tighten, "check my writing", or
-  "make this clearer", especially for leadership or cross-functional audiences.
-  Supports --show-changes, --in-place, --dry-run, and --audience modes. Not for
-  general writing advice, voice or style matching, UX copy tone, non-Google-Doc
-  text, or substantive content or strategy changes.
+  must supply missing data rather than guessing. Use ONLY when the user shares a
+  Google Doc URL and asks to review, improve, rewrite, or tighten it (or says
+  "check my writing" / "make this clearer" about that doc), or when another skill
+  must apply these writing standards to a Google Doc before publishing. Operates on
+  a Google Doc, not free text. --in-place OVERWRITES the original (a revision is
+  pinned for rollback); other modes create a new doc. Not for free-text prose (use
+  write-it-well), UX copy tone (use tone-check), or content/strategy changes.
 ---
 
-# Write Well
+# Narrative Style Editor
 
 ## Overview
 
-Write-well rewrites Google Docs by applying 38 rules for structure, clarity, data-driven precision, and editorial integrity. It flags gaps where the author must provide missing information to prevent data hallucination.
+The narrative-style-editor skill rewrites Google Docs by applying 38 rules for structure, clarity, data-driven precision, and editorial integrity. It flags gaps where the author must provide missing information to prevent data hallucination.
 
-Write-well creates a new document for rewritten content. It does not modify the original document unless the user specifies `--in-place`.
+It creates a new document for the rewritten content. It does not modify the original unless the user passes `--in-place`, which overwrites the original document (a pre-update revision ID is pinned for rollback).
 
-This skill differs from write-it-well, which applies passive Zinsser prose principles. Write-well adds data-backed precision, document durability, AI-tell vocabulary detection, and editorial integrity guardrails. These guardrails prevent urgency injection, attribution distortion, technical oversimplification, spin, and hallucinated data.
+This skill differs from write-it-well, which applies passive Zinsser prose principles. It adds data-backed precision, document durability, AI-tell vocabulary detection, and editorial integrity guardrails beyond general prose cleanup. These guardrails prevent urgency injection, attribution distortion, technical oversimplification, spin, and hallucinated data.
 
 ## When to Use
 
@@ -40,20 +41,20 @@ This skill differs from write-it-well, which applies passive Zinsser prose princ
 
 | Command | What happens | Emojis in body? | Edits original? |
 | :--- | :--- | :--- | :--- |
-| `/write-well <URL>` | Creates a new doc with a clean rewrite and changes table | No, except ⚠️ gap markers | No |
-| `/write-well --show-changes <URL>` | Creates a new doc with inline emoji markers and changes table | Yes | No |
-| `/write-well --in-place <URL>` | Rewrites the original doc with clean text and gap markers | No, except ⚠️ gap markers | Yes |
-| `/write-well --dry-run <URL>` | Previews the rewrite plan, changes table, and violation summary in conversation | N/A | No |
+| `/narrative-style-editor <URL>` | Creates a new doc with a clean rewrite and changes table | No, except ⚠️ gap markers | No |
+| `/narrative-style-editor --show-changes <URL>` | Creates a new doc with inline emoji markers and changes table | Yes | No |
+| `/narrative-style-editor --in-place <URL>` | Overwrites the original doc with clean text and gap markers | No, except ⚠️ gap markers | Yes |
+| `/narrative-style-editor --dry-run <URL>` | Previews the rewrite plan, changes table, and violation summary in conversation | N/A | No |
 
-Add `--audience <type>` to any mode to prioritize rules for the reader.
+Add `--audience <type>` to any mode to prioritize rules for the reader. Matching is case-insensitive.
 
 | Audience | P0 Rules |
 | :--- | :--- |
-| Leadership | 1-3: TL;DR, ask, so-what; 5: baselines; 7: recommendation; 25-26: acronyms and jargon |
-| Peers | 16-19: precision and data; 6: trade-offs |
+| leadership | 1-3: TL;DR, ask, so-what; 5: baselines; 7: recommendation; 25-26: acronyms and jargon |
+| peers | 16-19: precision and data; 6: trade-offs |
 | xfn | 1-3: TL;DR, ask, so-what; 7: recommendation; 8: toy examples; 25-26: acronyms and jargon |
 
-"Relaxed" means the rule is applied, but violations are flagged as P2 in the changes table instead of P0 or P1. No rules are skipped.
+Rules listed for the audience are P0; all other applicable rules are P1. Audience priority changes severity only; no rules are skipped.
 
 ## Common Mistakes
 
@@ -305,15 +306,11 @@ Flags are non-interactive. If no mode flag is provided, create a new document wi
 
 ## Output
 
-Follow `references/OUTPUT_FORMAT.md` for formatting details.
+Before creating or replacing any document, open `references/OUTPUT_FORMAT.md` and follow it for the document title, the pre-publish banner zone, the changes-table columns, and the violation-summary format. Those formats live there as the single source of truth; this file does not restate them. The change-log row types are listed in Process step 6.
 
 ### Default mode: new document, clean rewrite
 
-Create a document with the title:
-
-`[Claude] [/write-well]YYYY-MM-DD HH:MM - [Original Title]`
-
-Include:
+Create a new Google Doc titled per `references/OUTPUT_FORMAT.md`. Include:
 
 - Clean rewrite.
 - ⚠️ gap markers.
@@ -335,68 +332,22 @@ Output the link to the new document.
 
 ### `--in-place` mode
 
-Rewrite the original document with ⚠️ gaps only.
+This mode OVERWRITES the author's original document. Proceed only when `--in-place` was explicitly passed; running `--dry-run` first is recommended.
 
-Include:
-
-- "Changes Made" pre-publish zone at the top.
-- Clean rewritten document body.
-- Pinned pre-update revision ID for rollback.
-- Total change count.
-- Total gap count.
-- Drift verification count.
-
-Replace the document via `gdocs replace`.
-
-Output confirmation, the pinned revision ID for rollback, and total change and gap counts.
+1. Before any write, capture the current document revision so the change is recoverable: record the latest revision identifier (via the `gdocs` revisions API, or `gdocs docs get` revision metadata). Do not proceed until a revision ID has been captured.
+2. Replace the document body via `gdocs replace`, keeping the clean rewritten body (⚠️ gaps only) and the "Changes Made" pre-publish zone at the top.
+3. Verify the replace succeeded. If `gdocs replace` fails or only partially applies, do NOT report success: surface the failure and the captured revision ID, and restore the document to that revision (Google Docs File > Version history, or a `gdocs` revision-restore call if available).
+4. On success, output: confirmation ("Document updated in-place."), the pinned pre-update revision ID and how to roll back to it, the violation summary, total change count, and total gap count.
 
 ### `--dry-run` mode
 
-Do not create or modify a document.
-
-Output in the conversation:
+Do not create or modify a document. Output in the conversation, per `references/OUTPUT_FORMAT.md`:
 
 - Changes table.
 - Violation summary.
 - Gap list.
 - Drift verification result.
 
-## Changes Table
+## Changes table and violation summary
 
-Use document order.
-
-### Without `--audience`
-
-| ID | Type | Location | Original | Revised | Reasoning |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | Rewritten | §[Section], ¶[N] | "[text]" | "[rewritten]" | Rule N - why |
-| 2 | Removed | §[Section], ¶[N] | "[text]" | "" | Rule N - why |
-| 3 | Data | §[Section], ¶[N] | "[text]" | "[corrected]" | Rule N - why |
-| 4 | Gap | §[Section], ¶[N] | "[text]" | "[⚠️ NEEDS: what]" | Rule N - author needs [what] |
-| 5 | Drift | §[Section], ¶[N] | "[original]" | "[corrected rewrite]" | Verification caught Rule N violation |
-| 6 | Unresolved Drift | §[Section], ¶[N] | "[original]" | "[remaining issue]" | Rule N - unresolved after bounded verification |
-
-### With `--audience`
-
-Add a Priority column.
-
-| ID | Priority | Type | Location | Original | Revised | Reasoning |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | P0 | Rewritten | §[Section], ¶[N] | "[text]" | "[rewritten]" | Rule N - why |
-| 2 | P1 | Removed | §[Section], ¶[N] | "[text]" | "" | Rule N - why |
-| 3 | P1 | Data | §[Section], ¶[N] | "[text]" | "[corrected]" | Rule N - why |
-| 4 | P0 | Gap | §[Section], ¶[N] | "[text]" | "[⚠️ NEEDS: what]" | Rule N - author needs [what] |
-| 5 | P1 | Drift | §[Section], ¶[N] | "[original]" | "[corrected rewrite]" | Verification caught Rule N violation |
-| 6 | P1 | Unresolved Drift | §[Section], ¶[N] | "[original]" | "[remaining issue]" | Rule N - unresolved after bounded verification |
-
-## Violation Summary
-
-Include the violation summary after the changes table.
-
-Use this format:
-
-```text
-Rules: X of 38 applicable.
-Violations fixed: Y.
-Gaps flagged: Z.
-Verification: A drift violations caught and fixed. B unresolved drift violations remain.
+The changes-table columns (with and without `--audience`) and the violation-summary format are specified once in `references/OUTPUT_FORMAT.md`. Emit them exactly as defined there.

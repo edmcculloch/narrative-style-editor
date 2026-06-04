@@ -10,10 +10,58 @@ not yet been cut into a published version lives under **[Unreleased]**.
 
 ## [Unreleased]
 
-### Added
-- `REMEDIATION_PLAN.md` — phased plan to remediate the 32 findings (17 major)
-  from the v0.1.0 static architecture review, with the decisions required, a
-  finding-to-phase map, sequencing/dependencies, and version milestones.
+_Nothing yet._
+
+## [0.2.0] - 2026-06-04
+
+Remediation milestone 1: naming consistency, command relocation, coherence and
+spec fixes (Phase 1), and `--in-place` safety (Phase 2). Closes review findings
+D1, D2, R10–R14, and R21–R26.
+
+### Changed
+- **Renamed the skill to `narrative-style-editor`** (D1, R16): the frontmatter
+  `name`, the `/narrative-style-editor` command, the document title, and every
+  body reference now match the directory. (`write-it-well` and `tone-check`
+  remain as references to sibling skills.)
+- **Global rule numbering** (R10): `references/PRINCIPLES.md` now numbers all 38
+  rules 1–38 across sections; fixed the duplicate "3" in Editorial Integrity and
+  the restart in Anti-Patterns, so every `Rule N` citation in `SKILL.md`
+  resolves to exactly one rule.
+- **Single source of truth for output formats** (R12, R21, R25, R26): the
+  document title, changes-table columns, and violation-summary format now live
+  only in `references/OUTPUT_FORMAT.md`; `SKILL.md` points to it with an explicit
+  "open this before creating or replacing a document" instruction.
+- **Reconciled the violation summary** (R12): one canonical format that keeps
+  both the unresolved-drift count and a now-defined `Top categories` field, plus
+  explicit count-derivation rules.
+- **Routing moved into the description** (R14): the frontmatter now gates on a
+  Google Doc URL, names the `write-it-well` / `tone-check` boundaries and the
+  subroutine trigger; the command description matches.
+- **Audience presets** (R23, R24): lowercased the labels
+  (`leadership` / `peers` / `xfn`), made matching case-insensitive, removed the
+  dangling "Relaxed" / P2 concept, and stated the P0/P1 rule. The Priority column
+  is now P0/P1.
+
+### Fixed
+- `--in-place` rollback is now actually specified (R11): capture the pre-update
+  revision ID before any write, surface it with rollback instructions, and the
+  spec's in-place output now includes it.
+- `--in-place` safety (R13): the frontmatter and command warn that the mode
+  OVERWRITES the original; added failure handling for a failed or partial
+  `gdocs replace` (no false success; restore the captured revision) and a
+  recommendation to run `--dry-run` first.
+- Dry-run output (R22): the spec now lists all four items (changes table,
+  violation summary, gap list, drift verification result).
+- Closed an unterminated code fence at the end of `SKILL.md`.
+
+### Moved
+- `commands/write-well.md` → `.claude/commands/narrative-style-editor.md`
+  (D2, R16): the slash command now lives in the standard location and is no
+  longer an orphan inside the bundle.
+
+### Added (docs, since 0.1.0)
+- `REMEDIATION_PLAN.md` — phased plan to remediate the 32 v0.1.0 review findings,
+  with the required decisions, a finding-to-phase map, and version milestones.
 
 ## [0.1.0] - 2026-06-03
 
