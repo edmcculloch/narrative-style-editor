@@ -77,6 +77,7 @@ Flags are non-interactive. If no mode flag is provided, create a new document wi
 
 1. Read the original document.
 
+    - Validate the URL and extract the document ID with `python3 scripts/parse_doc_url.py "<URL>"` before any `gdocs` call.
     - Use `gdocs docs get` or `gdocs docs export`.
     - If the Google Docs Model Context Protocol (MCP) is unavailable, stop and notify the user:
 
@@ -90,6 +91,7 @@ Flags are non-interactive. If no mode flag is provided, create a new document wi
     - Apply every applicable rule.
     - If an audience flag is provided, use the audience table to assign priority in the change log.
     - Audience priority changes severity only. It does not skip rules.
+    - For Rule 25 (acronyms), run `python3 scripts/scan_acronyms.py` over the original to enumerate candidates; the script finds them and you decide define, expand, or leave each.
 
 3. Rewrite the document.
 
@@ -138,6 +140,7 @@ Flags are non-interactive. If no mode flag is provided, create a new document wi
     - The subagent must return a mandatory evidence checklist before any verdict; an unsupported `No drift detected.` is rejected and the pass is re-run.
     - Run a bounded fix-cycle loop: at most 3 correction cycles, with a final verification pass after the last fix. Log each fix as `Drift`; log anything still unresolved after the loop as `Unresolved Drift`.
     - Persist the final pass's evidence checklist into the pre-publish zone (see Output and `references/OUTPUT_FORMAT.md`).
+    - If spawning a verification subagent is unavailable in the host, run the same checklist as an inline self-review pass instead, or stop and notify the user. Do not skip verification.
 
 6. Compile a change log in document order.
 
@@ -157,6 +160,8 @@ Flags are non-interactive. If no mode flag is provided, create a new document wi
 ## Output
 
 Before creating or replacing any document, open `references/OUTPUT_FORMAT.md` and follow it for the document title, the pre-publish banner zone, the changes-table columns, and the violation-summary format. Those formats live there as the single source of truth; this file does not restate them. The change-log row types are listed in Process step 6.
+
+Assemble the deterministic parts with `python3 scripts/render_output.py`: given your change records as JSON, it computes the violation-summary counts, orders and de-dupes the changes-table rows and numbers them, assigns audience priority, formats the title timestamp in the author's timezone, and emits the pre-publish banner and changes-table HTML. You supply judgment and prose; the script supplies the facts so they always reconcile.
 
 ### Default mode: new document, clean rewrite
 
@@ -202,3 +207,13 @@ Do not create or modify a document. Output in the conversation, per `references/
 ## Changes table and violation summary
 
 The changes-table columns (with and without `--audience`) and the violation-summary format are specified once in `references/OUTPUT_FORMAT.md`. Emit them exactly as defined there.
+
+## Bundled scripts
+
+Deterministic helpers live in `scripts/` (Python 3.9+, standard library only). Code computes facts; the model composes narrative. See `scripts/README.md`.
+
+- `scripts/parse_doc_url.py` — validate the Google Doc URL and extract its ID (Process step 1).
+- `scripts/scan_acronyms.py` — enumerate acronym candidates for Rule 25 (Process step 2).
+- `scripts/render_output.py` — assemble the violation-summary counts, changes-table ordering and IDs, audience priority, title timestamp, and pre-publish HTML (Output).
+
+For a worked end-to-end illustration, see `references/EXAMPLE.md`.

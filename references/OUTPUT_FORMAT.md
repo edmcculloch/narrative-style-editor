@@ -24,6 +24,8 @@ Insert a "Changes Made" section at the top of the document, wrapped in yellow pr
   `<table data-col-widths="25, 30, 75, 75, 120, 110, 120">` (adds a Priority column after #).
 - Verification evidence checklist: below the changes table, include the final verification pass's checklist (the per-rule drift rows plus the citation and `Data`-source checks, per `references/VERIFICATION.md`). It lives inside the pre-publish zone so the author can audit the drift conclusion, then delete it with the rest of the zone before publishing.
 
+This output assumes the `gdocs` MCP accepts HTML input and honours `background-color` and `data-col-widths`. If a host's MCP does not, adapt to the structured request form it consumes.
+
 ## Changes table
 
 Use document order. Assign sequential IDs starting at 1.
@@ -78,7 +80,7 @@ Derive every number by tallying the change-log rows (do not estimate):
 - `X` = number of the 38 rules judged applicable to this document.
 - `Top categories` = the rule categories with the most violations, most first.
 
-The counts must reconcile with the changes table before output.
+The counts must reconcile with the changes table before output. `scripts/render_output.py` computes them (and the title, row ordering, IDs, audience priority, and pre-publish HTML) from the change records; use it rather than hand-counting.
 
 ## Per-mode output
 

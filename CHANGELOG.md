@@ -12,6 +12,49 @@ not yet been cut into a published version lives under **[Unreleased]**.
 
 _Nothing yet._
 
+## [1.0.0] - 2026-06-04
+
+Remediation milestone 3: a deterministic scripts layer (Phase 4) and polish
+(Phase 6). Closes review findings R2, R6, R7, R17, R18, R19, R20, R27, R28, R30,
+and R32, and partially R8. R31 remains deferred.
+
+### Added
+- `scripts/` (Python 3.9+, standard library only) — the deterministic layer (D3):
+  - `render_output.py` — computes violation-summary counts (R2); orders, de-dupes,
+    and numbers changes-table rows (R6); assigns audience P0/P1 priority (R19);
+    formats the title timestamp in the author's timezone (R7); and emits the
+    pre-publish banner and changes-table HTML with the canonical colour and column
+    widths (R18).
+  - `scan_acronyms.py` — the deterministic half of Rule 25: find acronym-like
+    tokens and their first occurrence; the model decides define/expand/leave (R20).
+  - `parse_doc_url.py` — validate the Google Doc URL and extract its ID before any
+    `gdocs` call (R28).
+  - `scripts/README.md` — dependencies and the input/output contracts.
+- `references/EXAMPLE.md` — a worked end-to-end example (R30), wired from `SKILL.md`.
+
+### Changed
+- `SKILL.md` now invokes the scripts in the workflow: URL validation in step 1, the
+  acronym scan in step 2, and deterministic output assembly in Output. The model
+  supplies judgment and prose; code supplies the facts so the summary, IDs,
+  ordering, timestamp, and priority are reproducible.
+- Rule 32 reframed (R32): it now explains why a parenthetical em-dash is the AI tell
+  and explicitly exempts en-dash numeric ranges and `→` arrows, so it no longer
+  over-fires on compliant text.
+- Expanded `README.md` to describe the skill, modes, layout, and scripts.
+
+### Fixed
+- Declared the verification-subagent dependency and added a guard with an inline
+  self-review fallback; verification is never skipped (R17).
+- Declared the `gdocs` HTML input-contract assumption (HTML, `background-color`,
+  `data-col-widths`) in `references/OUTPUT_FORMAT.md` (R27).
+- Loop bookkeeping (R8): the fix-cycle counters remain main-agent orchestration, but
+  the per-output counts and pass-number reconciliation are now deterministic via
+  `render_output.py` and the verification checklist (partial).
+
+### Deferred
+- R31 (relocate the audience preset table to a load-on-demand reference) — optional,
+  low impact.
+
 ## [0.3.0] - 2026-06-04
 
 Remediation milestone 2: attribution and audit trail (Phase 3) and extraction of

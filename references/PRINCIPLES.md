@@ -144,7 +144,7 @@ When you lack the information to fix a violation, do not guess. Insert `[⚠️ 
     Critical analysis tells — words LLMs overuse when trying to sound rigorous. State the specific thing the word gestures at, or delete. Do not replace with another vague qualifier.
     "honest/honestly" → delete (analysis that labels itself honest isn't demonstrating it); "nuanced" → state the specific distinction; "robust" → cite the specific data or evidence, or delete; "indeed" → delete (filler); "notably" → delete (just state the thing); "crucial" → state why it matters, or delete; "comprehensive" → state what's actually covered; "holistic" → state what's included; "thoughtful" → delete (thoughtfulness is demonstrated, not labeled).
 
-32. No em-dashes. Any em-dashes in a paragraph signals unedited output. Rewrite as separate sentences, or use commas and parentheses.
+32. No em-dashes as parenthetical breaks. A pair of em-dashes used as a parenthetical aside (the kind that brackets a clause mid-sentence) is a common AI tell and signals unedited output, because models reach for it instead of committing to sentence structure. Rewrite as separate sentences, or use commas and parentheses. This targets the parenthetical em-dash specifically: en-dash numeric ranges (for example 2-4) and `→` substitution arrows are fine.
 
 33. No monotonous structure. If every paragraph is the same length and opens the same way, the writing feels robotic. Vary sentence length and paragraph structure.
 
