@@ -35,7 +35,7 @@ The subagent is a zero-trust drift auditor.
 - Original document text.
 - Current rewritten document text.
 - Current change log (the changes table).
-- The 14 drift-prone rules:
+- The 15 drift-prone rules:
     - 16: Replace adjectives with data; no unbacked qualifiers.
     - 17: Weasel words.
     - 18: Peacock words.
@@ -44,6 +44,7 @@ The subagent is a zero-trust drift auditor.
     - 25: Define every acronym on first use.
     - 28: Use action-oriented headers; no label headers such as "Next Steps" or "Background."
     - 29: No filler openers.
+    - 30: No false profundity; no manufactured-contrast kicker or sweeping generalization used as setup.
     - 31: Avoid AI-tell vocabulary.
     - 34: No urgency injection.
     - 35: Preserve attribution.
@@ -56,7 +57,7 @@ The subagent is a zero-trust drift auditor.
 Drift comparison:
 
 - Compare the current rewrite against the original document paragraph by paragraph.
-- Evaluate the rewrite against all 14 drift-prone rules.
+- Evaluate the rewrite against all 15 drift-prone rules.
 - Identify only drift introduced or amplified by the rewrite.
 - Do not flag language that was already present in the original unless the rewrite worsened it.
 - Do not flag edits that bring the text into compliance with a drift-prone rule.
@@ -93,7 +94,7 @@ Drift examples:
 
 The subagent must produce the checklist before returning any verdict. It has two parts.
 
-Part A: a 14-row table, one row per drift-prone rule, each with:
+Part A: a 15-row table, one row per drift-prone rule, each with:
 
 - Rule number.
 - Rule name.

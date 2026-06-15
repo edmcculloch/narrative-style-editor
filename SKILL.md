@@ -92,6 +92,7 @@ Flags are non-interactive. If no mode flag is provided, create a new document wi
     - If an audience flag is provided, use the audience table to assign priority in the change log.
     - Audience priority changes severity only. It does not skip rules.
     - For Rule 25 (acronyms), run `python3 scripts/scan_acronyms.py` over the original to enumerate candidates; the script finds them and you decide define, expand, or leave each.
+    - For Rule 30 (false profundity), run `python3 scripts/scan_profundity.py` over the original and again over your rewritten body before publishing; it surfaces manufactured-contrast kickers, sweeping generalizations, and "not X, but Y" reveals as candidates, and you decide cut, rewrite, or keep each. Candidates are suggestions, not verdicts.
 
 3. Rewrite the document.
 
@@ -136,7 +137,7 @@ Flags are non-interactive. If no mode flag is provided, create a new document wi
 
     After the rewrite is complete, run the mandatory drift-verification pass before producing output. Read `references/VERIFICATION.md` and follow it exactly. In summary:
 
-    - A read-only, zero-trust verification subagent compares the rewrite against the original and audits it against the 14 drift-prone rules, the `Data`-row source-trace check, and the changes-table citation check.
+    - A read-only, zero-trust verification subagent compares the rewrite against the original and audits it against the 15 drift-prone rules, the `Data`-row source-trace check, and the changes-table citation check.
     - The subagent must return a mandatory evidence checklist before any verdict; an unsupported `No drift detected.` is rejected and the pass is re-run.
     - Run a bounded fix-cycle loop: at most 3 correction cycles, with a final verification pass after the last fix. Log each fix as `Drift`; log anything still unresolved after the loop as `Unresolved Drift`.
     - Persist the final pass's evidence checklist into the pre-publish zone (see Output and `references/OUTPUT_FORMAT.md`).
@@ -214,6 +215,7 @@ Deterministic helpers live in `scripts/` (Python 3.9+, standard library only). C
 
 - `scripts/parse_doc_url.py` — validate the Google Doc URL and extract its ID (Process step 1).
 - `scripts/scan_acronyms.py` — enumerate acronym candidates for Rule 25 (Process step 2).
+- `scripts/scan_profundity.py` — surface false-profundity / manufactured-contrast candidates for Rule 30 (Process step 2).
 - `scripts/render_output.py` — assemble the violation-summary counts, changes-table ordering and IDs, audience priority, title timestamp, and pre-publish HTML (Output).
 
 For a worked end-to-end illustration, see `references/EXAMPLE.md`.

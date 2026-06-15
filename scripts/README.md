@@ -41,6 +41,18 @@ occurrence. The model then decides define / expand / leave per candidate.
 python3 scripts/scan_acronyms.py --in original.txt
 ```
 
+## `scan_profundity.py`
+
+The deterministic half of Rule 30 (No false profundity): flag candidate sentences —
+manufactured-contrast kickers ("Most teams skip that. A firm in your position can't."),
+sweeping generalizations, "not X, but Y" reveals, and dramatic one-liners. The model
+then decides cut / rewrite / keep per candidate; matches are suggestions, not verdicts.
+Run it over both the original and the rewritten body before publishing.
+
+```
+python3 scripts/scan_profundity.py --in original.txt
+```
+
 ## `parse_doc_url.py`
 
 Validate a Google Docs URL and extract the document ID before any `gdocs` call (R28).

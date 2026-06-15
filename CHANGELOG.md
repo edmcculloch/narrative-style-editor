@@ -10,7 +10,27 @@ not yet been cut into a published version lives under **[Unreleased]**.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- `scripts/scan_profundity.py` — the deterministic half of Rule 30. It flags
+  manufactured-contrast kickers (a sweeping generalization followed by a short
+  punchy kicker), bare sweeping generalizations, "not X, but Y" / "It's not X.
+  It's Y." reveals, and curated dramatic one-liners, with line/column/offset and a
+  per-pattern reason. Candidates are suggestions; the model decides cut/rewrite/keep.
+  Wired into Process step 2 of `SKILL.md` (run over original and rewrite) and the
+  bundled-scripts list. Standard library only, mirrors the `scan_acronyms.py` I/O
+  contract (stdin or `--in FILE`; JSON `{count, candidates}`).
+
+### Changed
+- Rule 30 (No false profundity) now explicitly covers the **manufactured-contrast
+  kicker**: an unverifiable sweeping generalization ("most teams…", "everyone…",
+  "anyone can…") used to set up a punchy short-sentence payoff, plus the
+  "not X, but Y" reveal. These are common LLM tells; the "most/many/everyone" half
+  is also a Rule 17 weasel violation. Added three worked examples.
+- Added Rule 30 to the verifier's drift-prone rule set (now 15, was 14) in
+  `references/VERIFICATION.md` (list, evaluation step, and Part A row count) and
+  `SKILL.md`, so the anti-drift pass catches a false-profundity contrast the
+  rewrite itself introduces. No rule renumbering; the 1-38 citation range is
+  unchanged (Rule 30 already existed).
 
 ## [1.0.0] - 2026-06-04
 
