@@ -53,7 +53,7 @@ COL_WIDTHS_AUDIENCE = "25, 30, 75, 75, 120, 110, 120"
 CHANGE_TYPES = ["Rewritten", "Removed", "Data", "Gap", "Drift", "Unresolved Drift"]
 FIX_TYPES = {"Rewritten", "Removed", "Data"}  # count toward "violations fixed"
 
-# audience -> set of P0 rule numbers (the preset table in SKILL.md)
+# audience -> set of P0 rule numbers (mirrors references/AUDIENCE.md)
 AUDIENCE_P0 = {
     "leadership": {1, 2, 3, 5, 7, 25, 26},
     "peers": {6, 16, 17, 18, 19},

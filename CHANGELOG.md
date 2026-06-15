@@ -31,6 +31,12 @@ not yet been cut into a published version lives under **[Unreleased]**.
   `SKILL.md`, so the anti-drift pass catches a false-profundity contrast the
   rewrite itself introduces. No rule renumbering; the 1-38 citation range is
   unchanged (Rule 30 already existed).
+- Relocated the audience priority preset table out of the always-loaded `SKILL.md`
+  into a new load-on-demand `references/AUDIENCE.md`, read only when `--audience` is
+  passed (R31, context economy). `SKILL.md` keeps a one-line pointer and the valid
+  audience values; `render_output.py`'s `AUDIENCE_P0` constant stays the operative
+  encoding, and the reference notes the two must stay in sync. Closes the last
+  deferred review finding from the v0.1.0 architecture review.
 
 ### Fixed
 - `scripts/scan_profundity.py`: added smart-quote (curly apostrophe `’`) support so

@@ -46,15 +46,7 @@ This skill differs from write-it-well, which applies passive Zinsser prose princ
 | `/narrative-style-editor --in-place <URL>` | Overwrites the original doc with clean text and gap markers | No, except ⚠️ gap markers | Yes |
 | `/narrative-style-editor --dry-run <URL>` | Previews the rewrite plan, changes table, and violation summary in conversation | N/A | No |
 
-Add `--audience <type>` to any mode to prioritize rules for the reader. Matching is case-insensitive.
-
-| Audience | P0 Rules |
-| :--- | :--- |
-| leadership | 1-3: TL;DR, ask, so-what; 5: baselines; 7: recommendation; 25-26: acronyms and jargon |
-| peers | 16-19: precision and data; 6: trade-offs |
-| xfn | 1-3: TL;DR, ask, so-what; 7: recommendation; 8: toy examples; 25-26: acronyms and jargon |
-
-Rules listed for the audience are P0; all other applicable rules are P1. Audience priority changes severity only; no rules are skipped.
+Add `--audience <type>` (`leadership` | `peers` | `xfn`, case-insensitive) to any mode to prioritize rules for the reader. The per-audience priority preset lives in `references/AUDIENCE.md`; read it only when an audience flag is passed. Priority changes severity only; no rules are skipped.
 
 ## Common Mistakes
 
@@ -89,7 +81,7 @@ Flags are non-interactive. If no mode flag is provided, create a new document wi
 
     - Identify the 38 writing rules.
     - Apply every applicable rule.
-    - If an audience flag is provided, use the audience table to assign priority in the change log.
+    - If an audience flag is provided, read `references/AUDIENCE.md` and apply its preset to assign priority in the change log.
     - Audience priority changes severity only. It does not skip rules.
     - For Rule 25 (acronyms), run `python3 scripts/scan_acronyms.py` over the original to enumerate candidates; the script finds them and you decide define, expand, or leave each.
     - For Rule 30 (false profundity), run `python3 scripts/scan_profundity.py` over the original and again over your rewritten body before publishing; it surfaces manufactured-contrast kickers, sweeping generalizations, and "not X, but Y" reveals as candidates, and you decide cut, rewrite, or keep each. Candidates are suggestions, not verdicts.
@@ -145,7 +137,7 @@ Flags are non-interactive. If no mode flag is provided, create a new document wi
 
 6. Compile a change log in document order.
 
-    If `--audience` was specified, add a Priority column using the audience preset. Omit the Priority column if `--audience` is not used.
+    If `--audience` was specified, add a Priority column using the preset in `references/AUDIENCE.md`. Omit the Priority column if `--audience` is not used.
 
     Include all applicable change types:
 
