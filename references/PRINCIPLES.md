@@ -136,6 +136,11 @@ When you lack the information to fix a violation, do not guess. Insert `[⚠️ 
     - ❌ "Everything changed." → State what changed, with data.
     - ❌ "And then it hit me." → State the insight directly.
 
+    This includes the **manufactured-contrast kicker**: an unverifiable sweeping generalization ("most teams…", "everyone…", "anyone can…") used to set up a punchy short-sentence payoff, and the "not X, but Y" reveal. It reads as insight but asserts nothing checkable; the "most/many/everyone" setup is also a Rule 17 weasel violation. Delete the framing and let the specific sentence stand, or replace the generalization with the actual fact.
+    - ❌ "Most teams skip that layer. A firm in your position can't." → Delete it and let the preceding concrete sentence stand, or name who skips it and why this reader is different.
+    - ❌ "Anyone can use the tools. Few can govern them." → Name the specific capability instead of the rhetorical split.
+    - ❌ "It's not about the model. It's about the data." → Drop the not-X-but-Y reveal; state the point plainly.
+
 31. No AI-tell vocabulary. These words are overused by language models and signal unedited output.
 
     Creative/narrative tells — replace with plain alternatives:
