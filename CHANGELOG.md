@@ -37,6 +37,25 @@ not yet been cut into a published version lives under **[Unreleased]**.
   audience values; `render_output.py`'s `AUDIENCE_P0` constant stays the operative
   encoding, and the reference notes the two must stay in sync. Closes the last
   deferred review finding from the v0.1.0 architecture review.
+- **Converted the skill from Google Docs to portable text-in / text-out.** Input is
+  now pasted text (markdown or plain; formatting preserved); output is a single
+  console response — clean rewrite block, a markdown changes table, the violation
+  summary, and the verification checklist. Removed all Google-Docs/HTML output: the
+  pre-publish banner zone, `#FFF9C4` banners, `<table>` / `data-col-widths`, the
+  document title + timezone timestamp, and revision-pinning. `SKILL.md`,
+  `references/OUTPUT_FORMAT.md`, `references/VERIFICATION.md` (step 8),
+  `.claude/commands/narrative-style-editor.md`, `README.md`, and `scripts/README.md`
+  updated. No rule renumbering; the 1-38 citation contract is unchanged.
+- `scripts/render_output.py` now emits a markdown pipe table (`changes_table_md`)
+  instead of pre-publish HTML, and dropped the title/timestamp: removed the
+  `original_title` / `author_timezone` / `now` inputs and the `title` /
+  `pre_publish_html` outputs. The compute functions (counts, ordering, priority,
+  summary) are unchanged.
+
+### Removed
+- `scripts/parse_doc_url.py` — Google-Docs-URL validation; no URL is read anymore.
+- The `--in-place` mode — it overwrote the Google Doc; the default console rewrite,
+  which the user copies out, replaces it.
 
 ### Fixed
 - `scripts/scan_profundity.py`: added smart-quote (curly apostrophe `’`) support so

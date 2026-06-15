@@ -7,18 +7,13 @@ facts so they are reproducible and always reconcile with each other:
 
 - violation-summary counts (R2)
 - changes-table ordering, de-duplication, and sequential IDs (R6)
-- the document-title timestamp in the author's timezone (R7)
-- the pre-publish banner + changes-table HTML, with the canonical colour and
-  column widths (R18)
+- the "Changes Made" table rendered as a GitHub-style markdown pipe table
 - the audience -> P0/P1 priority assignment from the fixed preset (R19)
 
 It performs no model reasoning. Standard library only (Python 3.9+).
 
 Input (stdin, or --in FILE): a JSON object
     {
-      "original_title": "Q3 Planning",
-      "author_timezone": "America/New_York",   # IANA name; omit/null -> UTC
-      "now": "2026-06-04T15:04:00+00:00",        # optional ISO instant; omit -> now()
       "audience": "leadership",                   # leadership|peers|xfn or null
       "applicable_rule_count": 21,                # X: rules judged applicable (model)
       "records": [
@@ -29,27 +24,17 @@ Input (stdin, or --in FILE): a JSON object
     }
 
 Output (stdout): a JSON object
-    {"title": ..., "violation_summary": ..., "pre_publish_html": ..., "rows": [...]}
+    {"violation_summary": ..., "changes_table_md": ..., "rows": [...]}
 
 Exit codes: 0 ok; 2 invalid input.
 """
 from __future__ import annotations
 
 import argparse
-import html
 import json
 import sys
-from datetime import datetime, timezone
-
-try:
-    from zoneinfo import ZoneInfo
-except ImportError:  # pragma: no cover - py<3.9
-    ZoneInfo = None
 
 # --- Fixed constants (single source of truth) -------------------------------
-BANNER_COLOR = "#FFF9C4"
-COL_WIDTHS_PLAIN = "25, 75, 75, 120, 110, 120"
-COL_WIDTHS_AUDIENCE = "25, 30, 75, 75, 120, 110, 120"
 CHANGE_TYPES = ["Rewritten", "Removed", "Data", "Gap", "Drift", "Unresolved Drift"]
 FIX_TYPES = {"Rewritten", "Removed", "Data"}  # count toward "violations fixed"
 
@@ -86,28 +71,6 @@ def category_for(rule):
 def fail(msg):
     sys.stderr.write("render_output.py: %s\n" % msg)
     sys.exit(2)
-
-
-def resolve_now(spec):
-    raw = spec.get("now")
-    if raw:
-        try:
-            dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
-        except ValueError:
-            fail("could not parse 'now' as ISO 8601: %r" % raw)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-    else:
-        dt = datetime.now(timezone.utc)
-    tzname = spec.get("author_timezone")
-    if tzname:
-        if ZoneInfo is None:
-            fail("zoneinfo unavailable; cannot honour author_timezone")
-        try:
-            dt = dt.astimezone(ZoneInfo(tzname))
-        except Exception:  # noqa: BLE001 - report any tz lookup failure uniformly
-            fail("unknown author_timezone: %r" % tzname)
-    return dt
 
 
 def order_and_number(records):
@@ -154,14 +117,27 @@ def priority_for(rule, audience):
         return "P1"
 
 
+def _location(section, paragraph):
+    """Format a row location. Degrades gracefully for unsectioned input:
+    §Section, ¶N -> ¶N (no section) -> §Section (no paragraph) -> — (neither)."""
+    section = "" if section is None else str(section).strip()
+    paragraph = "" if paragraph is None else str(paragraph).strip()
+    if section and paragraph:
+        return "§%s, ¶%s" % (section, paragraph)
+    if paragraph:
+        return "¶%s" % paragraph
+    if section:
+        return "§%s" % section
+    return "—"
+
+
 def build_rows(records, audience):
     rows = []
     for rec in records:
-        location = "§%s, ¶%s" % (rec.get("section", ""), rec.get("paragraph", ""))
         row = {
             "id": rec["_id"],
             "type": rec.get("type", ""),
-            "location": location,
+            "location": _location(rec.get("section"), rec.get("paragraph")),
             "original": rec.get("original", ""),
             "revised": rec.get("revised", ""),
             "reasoning": rec.get("reasoning", ""),
@@ -206,44 +182,36 @@ def violation_summary(c):
     )
 
 
-def _cell(text):
-    return "<td>%s</td>" % html.escape(str(text), quote=False)
+def _md_cell(text):
+    """Escape a value for a markdown pipe-table cell. A literal pipe would start a
+    new column and a newline would start a new row, so escape the backslash and
+    pipe and fold any newline into <br>."""
+    s = str(text)
+    return (s.replace("\\", "\\\\")
+             .replace("|", "\\|")
+             .replace("\r\n", "\n")
+             .replace("\n", "<br>"))
 
 
-def changes_table_html(rows, audience):
+def changes_table_md(rows, audience):
+    """Render the Changes Made table as a GitHub-style markdown pipe table.
+
+    Columns: ID, [Priority,] Type, Location, Original, Revised, Reasoning.
+    Returns the `_No changes recorded._` sentinel when there are no rows.
+    """
     if audience:
         headers = ["ID", "Priority", "Type", "Location", "Original", "Revised", "Reasoning"]
-        widths = COL_WIDTHS_AUDIENCE
         order = ["id", "priority", "type", "location", "original", "revised", "reasoning"]
     else:
         headers = ["ID", "Type", "Location", "Original", "Revised", "Reasoning"]
-        widths = COL_WIDTHS_PLAIN
         order = ["id", "type", "location", "original", "revised", "reasoning"]
-    parts = ['<table data-col-widths="%s">' % widths]
-    parts.append("<tr>%s</tr>" % "".join("<th>%s</th>" % h for h in headers))
+    if not rows:
+        return "_No changes recorded._"
+    lines = ["| " + " | ".join(headers) + " |",
+             "| " + " | ".join("---" for _ in headers) + " |"]
     for row in rows:
-        parts.append("<tr>%s</tr>" % "".join(_cell(row.get(k, "")) for k in order))
-    parts.append("</table>")
-    return "".join(parts)
-
-
-def banner(text):
-    return ('<table style="background-color: %s"><tr><td><b>%s</b></td></tr></table>'
-            % (BANNER_COLOR, html.escape(text, quote=False)))
-
-
-def pre_publish_html(rows, audience, summary):
-    head = banner("PRE-PUBLISH - delete everything between these banners before publishing.")
-    foot = banner("END PRE-PUBLISH - delete everything above this banner before publishing.")
-    return "\n".join([
-        head,
-        "<p><b>Changes Made</b></p>",
-        changes_table_html(rows, audience),
-        "<p>%s</p>" % html.escape(summary, quote=False).replace("\n", "<br>"),
-        "<p><i>Verification evidence checklist: paste the final pass's checklist here "
-        "(see references/VERIFICATION.md).</i></p>",
-        foot,
-    ])
+        lines.append("| " + " | ".join(_md_cell(row.get(k, "")) for k in order) + " |")
+    return "\n".join(lines)
 
 
 def main(argv=None):
@@ -272,13 +240,10 @@ def main(argv=None):
     rows = build_rows(ordered, audience)
     c = counts(ordered, spec.get("applicable_rule_count", "X"))
     summary = violation_summary(c)
-    ts = resolve_now(spec).strftime("%Y-%m-%d %H:%M")
-    title = "[Claude] [/narrative-style-editor] %s - (%s)" % (ts, spec.get("original_title", ""))
 
     out = {
-        "title": title,
         "violation_summary": summary,
-        "pre_publish_html": pre_publish_html(rows, audience, summary),
+        "changes_table_md": changes_table_md(rows, audience),
         "rows": rows,
     }
     json.dump(out, sys.stdout, ensure_ascii=False, indent=2)
