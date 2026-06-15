@@ -161,9 +161,8 @@ If valid violations exist and `fix_cycle == max_fix_cycles`:
 Persist the final verification pass's checklist (Parts A and B) so the drift
 conclusion is auditable after the run:
 
-- Default, `--show-changes`, and `--in-place` modes: include it inside the
-  pre-publish zone, below the changes table. It is deleted with the rest of the
-  zone before publishing.
+- Default and `--show-changes` modes: include it in the console output, below the
+  changes table and violation summary.
 - `--dry-run` mode: include it in the conversation as part of the drift
   verification result.
 

@@ -10,9 +10,8 @@ them from the repository root.
 
 Assembles the deterministic output so the numbers always reconcile: violation-summary
 counts (R2), changes-table ordering / de-duplication / sequential IDs (R6), the
-title timestamp in the author's timezone (R7), the audience → P0/P1 priority from
-the fixed preset (R19), and the pre-publish banner + changes-table HTML with the
-canonical colour and column widths (R18).
+audience → P0/P1 priority from the fixed preset (R19), and the "Changes Made" table
+rendered as a GitHub-style markdown pipe table.
 
 The model supplies the change records (its judgment) and the per-row prose; the
 script supplies the facts. Records must be emitted in document order (or each carry
@@ -23,14 +22,13 @@ python3 scripts/render_output.py --in spec.json
 cat spec.json | python3 scripts/render_output.py
 ```
 
-Input (JSON): `original_title`, `author_timezone` (IANA name, optional → UTC),
-`now` (ISO instant, optional → current time), `audience`
-(`leadership` | `peers` | `xfn` | null), `applicable_rule_count` (X, model
-judgment), and `records[]`. Each record:
+Input (JSON): `audience` (`leadership` | `peers` | `xfn` | null),
+`applicable_rule_count` (X, model judgment), and `records[]`. Each record:
 `{type, section, paragraph, original, revised, rule, reasoning [, order]}`, where
-`type` is one of Rewritten, Removed, Data, Gap, Drift, Unresolved Drift.
+`type` is one of Rewritten, Removed, Data, Gap, Drift, Unresolved Drift. `section`
+is optional — when absent, the row location degrades to `¶N` (or `—`).
 
-Output (JSON): `title`, `violation_summary`, `pre_publish_html`, `rows[]`.
+Output (JSON): `violation_summary`, `changes_table_md`, `rows[]`.
 
 ## `scan_acronyms.py`
 
@@ -39,6 +37,7 @@ occurrence. The model then decides define / expand / leave per candidate.
 
 ```
 python3 scripts/scan_acronyms.py --in original.txt
+cat original.txt | python3 scripts/scan_acronyms.py
 ```
 
 ## `scan_profundity.py`
@@ -47,16 +46,9 @@ The deterministic half of Rule 30 (No false profundity): flag candidate sentence
 manufactured-contrast kickers ("Most teams skip that. A firm in your position can't."),
 sweeping generalizations, "not X, but Y" reveals, and dramatic one-liners. The model
 then decides cut / rewrite / keep per candidate; matches are suggestions, not verdicts.
-Run it over both the original and the rewritten body before publishing.
+Run it over both the original and the rewritten body before producing output.
 
 ```
 python3 scripts/scan_profundity.py --in original.txt
-```
-
-## `parse_doc_url.py`
-
-Validate a Google Docs URL and extract the document ID before any `gdocs` call (R28).
-
-```
-python3 scripts/parse_doc_url.py "https://docs.google.com/document/d/<id>/edit"
+cat original.txt | python3 scripts/scan_profundity.py
 ```

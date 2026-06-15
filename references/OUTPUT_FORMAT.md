@@ -1,39 +1,57 @@
 # Output Format
 
-This is the single source of truth for the narrative-style-editor output formats:
-the document title, the pre-publish zone, the changes table, and the violation
-summary. `SKILL.md` points here rather than restating them.
+This is the single source of truth for the narrative-style-editor output: the
+console response, the changes table, and the violation summary. `SKILL.md` points
+here rather than restating them.
 
-## Document title
+The skill takes pasted text (markdown or plain) and returns everything in one
+console response. Nothing is written to a file or an external document, so there is
+no document title, banner, or "delete before publishing" zone — the user copies the
+clean rewrite out of the response; the review material below it is for reference.
 
-For modes that create a new document, title it:
+## Console response
 
-`[Claude] [/narrative-style-editor] YYYY-MM-DD HH:MM - (Original Title)`
+Emit these parts in order, in the conversation:
 
-The timestamp is the date and time in the author's timezone.
+1. **Clean rewrite** — the rewritten text as a copyable markdown block. If the input
+   was markdown, preserve its formatting (headings, lists, emphasis, links, code,
+   tables). Only ⚠️ gap markers appear in the body; no other inline markers (except
+   in `--show-changes`).
+2. **Changes Made table** — the markdown pipe table from `scripts/render_output.py`
+   (`changes_table_md`), under a `## Changes Made` heading.
+3. **Violation summary** — the exact format under "Violation summary" below.
+4. **Verification evidence checklist** — the final drift-verification pass's
+   checklist (Parts A and B, per `references/VERIFICATION.md`).
 
-## Pre-Publish Zone (default, show-changes, and in-place modes)
+Mode differences:
 
-Insert a "Changes Made" section at the top of the document, wrapped in yellow pre-publish banners (header + footer) instructing the author to delete everything between the banners before publishing.
-
-- Banners: single-cell `<table>` with `background-color: #FFF9C4`, plain bold text (no headings, no font-size overrides).
-- "Changes Made" label: `<p><b>`, not a heading.
-- Changes table (without `--audience`):
-  `<table data-col-widths="25, 75, 75, 120, 110, 120">` (Google Docs does not auto-size columns; these proportional widths keep # and Type narrow, Original/Revised/Reasoning wide).
-- Changes table (with `--audience`):
-  `<table data-col-widths="25, 30, 75, 75, 120, 110, 120">` (adds a Priority column after #).
-- Verification evidence checklist: below the changes table, include the final verification pass's checklist (the per-rule drift rows plus the citation and `Data`-source checks, per `references/VERIFICATION.md`). It lives inside the pre-publish zone so the author can audit the drift conclusion, then delete it with the rest of the zone before publishing.
-
-This output assumes the `gdocs` MCP accepts HTML input and honours `background-color` and `data-col-widths`. If a host's MCP does not, adapt to the structured request form it consumes.
+- **Default** — all four parts; clean rewrite body (⚠️ gap markers only).
+- **`--show-changes`** — same four parts, but the rewrite block carries inline
+  ✍️ rewritten / 🗑️ removed / 📊 data / ⚠️ gap markers at every change site so the
+  author can see where edits were made.
+- **`--dry-run`** — omit part 1 (no rewrite block). Emit the changes table, the
+  violation summary, the gap list, and the drift-verification result (including the
+  evidence checklist).
 
 ## Changes table
 
-Use document order. Assign sequential IDs starting at 1.
+Use document order. Assign sequential IDs starting at 1. The table is rendered as a
+GitHub-style markdown pipe table by `scripts/render_output.py`.
 
-- **Location** uses `§[Original Section], ¶[N]`, where `¶N` counts paragraphs from the start of that section in the ORIGINAL document, excluding headings, tables, and the pre-publish zone. Pin `§Section` to the original heading text; if a header was rewritten (Rule 28), still cite the original header so the row stays resolvable.
-- **Original** must be a verbatim substring of the source document. **Reasoning** must cite a real rule number in the range 1-38.
-- A **Data** row must additionally cite the original span the value is derived from. A value that does not trace to the source is fabricated data (drift), not a `Data` change.
-- The changes table is an edit log, not a claim-provenance log: it records changed, added, or removed spans, not every preserved factual claim. Preserved text is not independently re-verified; when data integrity must be inspectable, use `--show-changes`.
+- **Location** uses `§[Original Section], ¶[N]`, where `¶N` counts paragraphs from
+  the start of that section in the ORIGINAL text, excluding headings and tables. Pin
+  `§Section` to the original heading text; if a header was rewritten (Rule 28), still
+  cite the original header so the row stays resolvable. When the input has no
+  headings, use `¶N` alone (paragraphs from the start of the input).
+- **Original** must be a verbatim substring of the source text. **Reasoning** must
+  cite a real rule number in the range 1-38.
+- A **Data** row must additionally cite the original span the value is derived from.
+  A value that does not trace to the source is fabricated data (drift), not a `Data`
+  change.
+- The changes table is an edit log, not a claim-provenance log: it records changed,
+  added, or removed spans, not every preserved factual claim. Preserved text is not
+  independently re-verified; when data integrity must be inspectable, use
+  `--show-changes`.
 
 ### Without `--audience`
 
@@ -80,28 +98,6 @@ Derive every number by tallying the change-log rows (do not estimate):
 - `X` = number of the 38 rules judged applicable to this document.
 - `Top categories` = the rule categories with the most violations, most first.
 
-The counts must reconcile with the changes table before output. `scripts/render_output.py` computes them (and the title, row ordering, IDs, audience priority, and pre-publish HTML) from the change records; use it rather than hand-counting.
-
-## Per-mode output
-
-### Default mode (clean rewrite)
-1. Create a new Google Doc with the title above.
-2. Replace content with the clean rewrite. No inline emoji change markers; only ⚠️ gap markers remain in the body (they require author action).
-3. Insert the pre-publish zone at the top.
-4. Output the link to the new Google Doc.
-
-### Show-changes mode
-Same as default, but the body includes inline emoji markers (✍️ rewritten, 🗑️ removed, 📊 data, ⚠️ gap) at every change site so the author can audit where edits were made.
-
-### In-place mode (OVERWRITES the original)
-1. Capture the pre-update revision ID before any write.
-2. Replace the document via `gdocs replace`; keep the clean body plus the pre-publish zone.
-3. On a failed or partial replace, do not report success; surface the failure and restore the captured revision.
-4. Output to the user: confirmation ("Document updated in-place."), the pinned pre-update revision ID and how to roll back to it, the violation summary, and total change and gap counts.
-
-### Dry-run mode
-No document is created or modified. Output in the conversation:
-1. Changes table.
-2. Violation summary.
-3. Gap list.
-4. Drift verification result.
+The counts must reconcile with the changes table before output. `scripts/render_output.py`
+computes them (and the row ordering, IDs, audience priority, and the markdown changes
+table) from the change records; use it rather than hand-counting.
