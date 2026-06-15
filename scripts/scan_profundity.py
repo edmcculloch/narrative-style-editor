@@ -11,17 +11,18 @@ profundity to cut or rewrite, or a legitimate, specific sentence to keep.
 Reads text from stdin or --in FILE. Prints, as JSON, each candidate sentence with its
 matched pattern(s), a reason per pattern, any paired setup line, and first-occurrence
 position (1-based line and column, plus character offset). Candidates are SUGGESTIONS,
-not verdicts: a short factual sentence ("None failed.") can match and still be fine.
-Standard library only.
+not verdicts: a borderline kicker can surface and still be fine, so the standalone-kicker
+reason hedges and leaves the call to the model. Plain factual short sentences (e.g.
+"None failed.") are excluded. Standard library only.
 
 Patterns:
   sweeping_generalization  opens with an unbacked quantifier (Most/Many/Everyone/
                            Anyone/Nobody/No one/Few) and contains no number. Also a
                            Rule 17 weasel issue.
   manufactured_contrast    a sweeping-generalization sentence immediately followed by a
-                           short (<=7-word) kicker, OR any short (<=6-word) kicker with
-                           an absolute marker (can't/never/only...) right after a long
-                           (>=14-word) sentence. The classic "...; few can." tell.
+                           short (<=7-word) kicker, OR a short (<=6-word) kicker with a
+                           contrast cue (but/yet, can't/won't, only/few...) right after a
+                           long (>=14-word) sentence. The classic "...; few can." tell.
   contrast_reveal          "not just/only/merely/about X ... but Y", "isn't about/just/
                            only ...", or the two-sentence "It's not X. It's Y." reveal.
   false_profundity         curated dramatic one-liners ("Everything changed.", etc.).
@@ -38,22 +39,28 @@ SWEEPING_RE = re.compile(
     r"^(most|many|everyone|everybody|anyone|anybody|nobody|no\s+one|few)\b", re.I
 )
 NUM_RE = re.compile(r"\d|%")
-MARKER_RE = re.compile(
-    r"\b(can'?t|cannot|won'?t|don'?t|doesn'?t|didn'?t|never|always|none|"
-    r"no\s+one|nobody|few|only|everything|nothing|anyone)\b",
+# One apostrophe character, curly (’, U+2019) or straight ('), for smart-quoted docs.
+APOS = "[’']"
+# Reversal-specific contrast cues for the standalone-kicker rule: contrastive openers,
+# modal negations, and exclusivity. Deliberately excludes plain absolutes such as
+# none/nothing/everything so factual kickers ("None failed.") do not fire.
+CONTRAST_KICKER_RE = re.compile(
+    rf"^(but|yet|however)\b"
+    rf"|\b(can{APOS}?t|cannot|won{APOS}?t|couldn{APOS}?t|shouldn{APOS}?t)\b"
+    rf"|\b(only|merely|few|fewer|no\s+one|nobody)\b",
     re.I,
 )
 CONTRAST_IN_SENT_RE = re.compile(
-    r"(\bnot\s+(just|only|merely|about)\b.+\bbut\b"
-    r"|\bisn'?t\s+(about|just|only|the)\b"
-    r"|\bit'?s\s+not\b.+\bit'?s\b)",
+    rf"(\bnot\s+(just|only|merely|about)\b.+\bbut\b"
+    rf"|\bisn{APOS}?t\s+(about|just|only|the)\b"
+    rf"|\bit{APOS}?s\s+not\b.+\bit{APOS}?s\b)",
     re.I,
 )
 NOT_OPENER_RE = re.compile(
-    r"^(it'?s|this\s+is|that'?s|these\s+are|we'?re|i'?m)\s+not\b", re.I
+    rf"^(it{APOS}?s|this\s+is|that{APOS}?s|these\s+are|we{APOS}?re|i{APOS}?m)\s+not\b", re.I
 )
 NOT_CONTINUE_RE = re.compile(
-    r"^(it'?s|this\s+is|that'?s|these\s+are|we'?re|i'?m)\b", re.I
+    rf"^(it{APOS}?s|this\s+is|that{APOS}?s|these\s+are|we{APOS}?re|i{APOS}?m)\b", re.I
 )
 PROFUNDITY_RE = re.compile(
     r"^(everything\s+(changed|is\s+different|was\s+different)"
@@ -147,12 +154,14 @@ def scan(text):
                     "Short kicker right after a sweeping generalization (the \"...; few "
                     "can.\" tell; Rule 30). Cut it, or replace the generalization with the "
                     "specific fact.", setup=s)
-            # standalone short kicker after a long sentence, with an absolute marker
+            # standalone short kicker, with a contrast cue, after a long sentence
             if (i > 0 and wcs[i] <= SHORT_KICKER_MAX and wcs[i - 1] >= LONG_SETUP_MIN
-                    and MARKER_RE.search(s)):
+                    and CONTRAST_KICKER_RE.search(s)):
                 add(off, s, "manufactured_contrast",
-                    "Short punchy kicker (absolute marker) after a long sentence (Rule 30). "
-                    "Likely a manufactured payoff; fold it into the prior sentence or cut.",
+                    "Short kicker after a long sentence with a contrast cue (Rule 30). "
+                    "The script did not confirm a manufactured contrast (a plain factual "
+                    "sentence can also match); you decide: fold into the prior sentence, "
+                    "cut, or keep.",
                     setup=sents[i - 1][1])
 
     return [flagged[o] for o in sorted(flagged)]
