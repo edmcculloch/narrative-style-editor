@@ -32,6 +32,14 @@ not yet been cut into a published version lives under **[Unreleased]**.
   rewrite itself introduces. No rule renumbering; the 1-38 citation range is
   unchanged (Rule 30 already existed).
 
+### Fixed
+- `scripts/scan_profundity.py`: added smart-quote (curly apostrophe `’`) support so
+  reveals like "It's not X. It's Y." are still caught when a Google Doc uses `’`, and
+  tightened the standalone-kicker rule to require a genuine contrast cue (but/yet,
+  can't/won't, only/few) instead of any absolute marker — plain factual short sentences
+  (e.g. "None failed.") no longer flag, and the remaining standalone flags carry a
+  low-confidence, "you decide" reason.
+
 ## [1.0.0] - 2026-06-04
 
 Remediation milestone 3: a deterministic scripts layer (Phase 4) and polish
