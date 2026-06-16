@@ -127,10 +127,11 @@ When you lack the information to fix a violation, do not guess. Insert `[⚠️ 
 
 ## Anti-Patterns
 
-29. No filler openers. Delete any sentence that could start any document on any topic.
+29. No filler openers — or reflexive-summary closers. Delete any sentence that could start any document on any topic, and any sentence whose only job is to announce that the document is ending.
     - ❌ "In today's fast-paced world..."
     - ❌ "It's important to note that..."
     - ❌ "As we continue to evolve..."
+    - ❌ closer: "In conclusion, …", "To summarize, …", "Ultimately, …", "At the end of the day, …" → end on the actual last point; do not restate that you are concluding.
 
 30. No false profundity. Dramatic one-liners that sound deep but say nothing.
     - ❌ "Everything changed." → State what changed, with data.
@@ -147,7 +148,10 @@ When you lack the information to fix a violation, do not guess. Insert `[⚠️ 
     "delve" → examine; "tapestry" → mix; "leverage" → use; "foster" → encourage; "garner" → earn; "showcase" → show; "underscore" → emphasize; "landscape" → field; "paradigm" → model; "synergy" → cooperation (or state the specific benefit).
 
     Critical analysis tells — words LLMs overuse when trying to sound rigorous. State the specific thing the word gestures at, or delete. Do not replace with another vague qualifier.
-    "honest/honestly" → delete (analysis that labels itself honest isn't demonstrating it); "nuanced" → state the specific distinction; "robust" → cite the specific data or evidence, or delete; "indeed" → delete (filler); "notably" → delete (just state the thing); "crucial" → state why it matters, or delete; "comprehensive" → state what's actually covered; "holistic" → state what's included; "thoughtful" → delete (thoughtfulness is demonstrated, not labeled).
+    "honest/honestly" → delete (analysis that labels itself honest isn't demonstrating it; covers "honest answer" / "to be honest"); "actually" → delete (conversational filler; if the claim is true, state it without the qualifier); "nuanced" → state the specific distinction; "robust" → cite the specific data or evidence, or delete; "indeed" → delete (filler); "notably" → delete (just state the thing); "crucial" → state why it matters, or delete; "pivotal" → name the turning point and why, or delete; "vital" → state the specific stake, or delete; "significant" → cite the number, or delete; "comprehensive" → state what's actually covered; "holistic" → state what's included; "thoughtful" → delete (thoughtfulness is demonstrated, not labeled).
+
+    Connective crutches — LLMs cycle through a small set of heavy transitions where a plain one (or none) reads better; the tell is stacking them as paragraph openers, not any single use. Replace with "also", "and", "but", "so", or cut:
+    "moreover" / "furthermore" / "additionally" → "also", or just start the sentence; "consequently" / "hence" / "thus" → "so"; "nevertheless" / "nonetheless" → "but" / "still".
 
 32. No em-dashes as parenthetical breaks. A pair of em-dashes used as a parenthetical aside (the kind that brackets a clause mid-sentence) is a common AI tell and signals unedited output, because models reach for it instead of committing to sentence structure. Rewrite as separate sentences, or use commas and parentheses. This targets the parenthetical em-dash specifically: en-dash numeric ranges (for example 2-4) and `→` substitution arrows are fine.
 
