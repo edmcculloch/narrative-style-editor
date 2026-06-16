@@ -51,6 +51,16 @@ not yet been cut into a published version lives under **[Unreleased]**.
   `original_title` / `author_timezone` / `now` inputs and the `title` /
   `pre_publish_html` outputs. The compute functions (counts, ordering, priority,
   summary) are unchanged.
+- Rule 31 (No AI-tell vocabulary): added `actually` to the critical-analysis tells
+  (conversational filler; was absent skill-wide), spelled out that `honest/honestly`
+  covers "honest answer" / "to be honest", added the significance-inflation adjectives
+  `pivotal`/`vital`/`significant`, and added a **Connective crutches** sub-list
+  (`moreover`/`furthermore`/`additionally`/`consequently`/`hence`/`thus`/`nevertheless`/
+  `nonetheless`) — the most-cited 2025-2026 tell, targeting them stacked as openers.
+- Rule 29 (No filler openers): extended to **reflexive-summary closers**
+  (`In conclusion`/`To summarize`/`Ultimately`/`At the end of the day`) — the mirror
+  of the existing opener ban. No rule renumbering; the 1-38 citation contract is
+  unchanged. Source: research-archive/ai-slop-indicators-narrative-skill-2026-06-16.
 
 ### Removed
 - `scripts/parse_doc_url.py` — Google-Docs-URL validation; no URL is read anymore.
